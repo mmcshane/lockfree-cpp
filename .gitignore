@@ -11,3 +11,6 @@
 *.lai
 *.la
 *.a
+
+# The unit test executable
+test/test
