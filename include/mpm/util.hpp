@@ -3,17 +3,17 @@
 namespace mpm {
 
     namespace detail {
-        template <bool x> struct STATIC_ASSERTION_FAILURE;
+        template <bool> struct STATIC_ASSERTION_FAILURE;
         template <> struct STATIC_ASSERTION_FAILURE<true> { enum { value = 1 }; };
-        template <int i> struct static_assert_helper{};
+        template <int> struct static_assert_helper{};
     }
 
 
-    template <bool B, typename T=void> struct enable_if{};
+    template <bool, typename T=void> struct enable_if{};
     template <typename T> struct enable_if<true, T> { typedef T type; };
 
 
-    template <bool B, typename T=void> struct disable_if{};
+    template <bool, typename T=void> struct disable_if{};
     template <typename T> struct disable_if<false, T> { typedef T type; };
 }
 
