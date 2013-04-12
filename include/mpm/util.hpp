@@ -17,8 +17,12 @@ namespace mpm {
     template <typename T> struct disable_if<false, T> { typedef T type; };
 }
 
+#define MPM_JOIN(X, Y) __MPM_DO_JOIN(X, Y)
+#define __MPM_DO_JOIN(X, Y) X##Y
+
 #define MPM_STATIC_ASSERT(expr) \
-    typedef detail::static_assert_helper<sizeof(detail::STATIC_ASSERTION_FAILURE<(bool)(expr)>)> _mpm_static_assert_typedef
+    typedef detail::static_assert_helper<sizeof(detail::STATIC_ASSERTION_FAILURE<(bool)(expr)>)> \
+            MPM_JOIN(Line_, __LINE__)
 
 #define MPM_CAS(val, expected, new_val) \
     __sync_bool_compare_and_swap(val, expected, new_val);
