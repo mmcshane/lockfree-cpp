@@ -1,7 +1,8 @@
 #pragma once
 
-#include "atomic_tagged_ptr.hpp"
-#include "util.hpp"
+#include "mpm/atomic.hpp"
+#include "mpm/atomic_tagged_ptr.hpp"
+#include "mpm/util.hpp"
 #include <cassert>
 
 namespace mpm {

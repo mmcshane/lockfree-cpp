@@ -1,6 +1,7 @@
 #pragma once
 
-#include "util.hpp"
+#include "mpm/atomic.hpp"
+#include "mpm/util.hpp"
 #include <stdint.h>
 
 namespace mpm {
