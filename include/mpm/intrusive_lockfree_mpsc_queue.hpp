@@ -29,13 +29,13 @@ public:
     typedef T* volatile volatile_pointer;
     typedef T& reference;
 
-    lockfree_mpsc_queue();
+    intrusive_lockfree_mpsc_queue();
 
     void push(reference value);
     pointer pop();
 
 private:
-    MPM_DISALLOW_COPY_AND_ASSIGN(intrusive_lockfree_mpsc_queue)
+    MPM_DISALLOW_COPY_AND_ASSIGN(intrusive_lockfree_mpsc_queue);
 
     value_type m_stub;
     volatile_pointer m_head;
@@ -44,11 +44,10 @@ private:
 
 
 template <typename T>
-intrusive_lockfree_mpsc_queue<T>::lockfree_mpsc_queue() :
+intrusive_lockfree_mpsc_queue<T>::intrusive_lockfree_mpsc_queue() :
     m_head(&m_stub), m_tail(&m_stub)
 {
-    mpm_intrusive_lockfree_mpsc_queue_set_next(
-            &m_stub, static_cast<pointer>(NULL));
+    mpm_intrusive_lockfree_mpsc_queue_set_next(m_stub, static_cast<pointer>(0));
 }
 
 
@@ -56,28 +55,27 @@ template <typename T>
 void
 intrusive_lockfree_mpsc_queue<T>::push(reference value)
 {
-    mpm_intrusive_lockfree_mpsc_queue_set_next(
-            &value, static_cast<pointer>(NULL));
-    pointer prev(atomicSet(m_head, &value));
-    svt_lfmpscq_set_next(prev, &value);
+    mpm_intrusive_lockfree_mpsc_queue_set_next(value, static_cast<pointer>(0));
+    pointer prev(MPM_EXCHG(&m_head, &value));
+    mpm_intrusive_lockfree_mpsc_queue_set_next(*prev, &value);
 }
 
 
 template <typename T>
-typename lockfree_mpsc_queue<T>::pointer
+typename intrusive_lockfree_mpsc_queue<T>::pointer
 intrusive_lockfree_mpsc_queue<T>::pop()
 {
     pointer tail = m_tail;
     pointer next(
-        mpm_intrusive_lockfree_mpsc_queue_get_next(tail));
+        mpm_intrusive_lockfree_mpsc_queue_get_next(*tail));
 
     if (tail == &m_stub)
     {
-        if (NULL == next)
-            return NULL;
+        if (0 == next)
+            return 0;
         m_tail = next;
         tail = next;
-        next = mpm_intrusive_lockfree_mpsc_queue_get_next(next);
+        next = mpm_intrusive_lockfree_mpsc_queue_get_next(*next);
     }
     if (next)
     {
@@ -86,15 +84,15 @@ intrusive_lockfree_mpsc_queue<T>::pop()
     }
     T* head = m_head;
     if (tail != head)
-        return NULL;
+        return 0;
     push(m_stub);
-    next = mpm_intrusive_lockfree_mpsc_queue_get_next(tail);
+    next = mpm_intrusive_lockfree_mpsc_queue_get_next(*tail);
     if (next)
     {
         m_tail = next;
         return tail;
     }
-    return NULL;
+    return 0;
 }
 
 
@@ -107,7 +105,7 @@ inline void mpm_intrusive_lockfree_mpsc_queue_set_next(
 
 
 template <typename T>
-inline T* mpm_intrusive_lockfree_mpsc_queue_get_next(T const volatile& entry)
+inline T* mpm_intrusive_lockfree_mpsc_queue_get_next(const T volatile& entry)
 {
     return entry.next;
 }
@@ -117,9 +115,7 @@ template <typename T>
 class intrusive_lockfree_mpsc_queue_entry
 {
     friend void mpm_intrusive_lockfree_mpsc_queue_set_next<>(T volatile&, T*);
-    friend T& mpm_intrusive_lockfree_mpsc_queue_get_next<>(const T volatile&);
-
-    intrusive_lockfree_mpsc_queue_entry() : next(NULL) { }
+    friend T* mpm_intrusive_lockfree_mpsc_queue_get_next<>(const T volatile&);
     T* next;
 };
 
