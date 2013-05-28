@@ -25,8 +25,8 @@ namespace mpm {
                 tag_type expected_tag, tag_type new_tag);
 
     private:
-        MPM_DISALLOW_COPY_AND_ASSIGN(atomic_tagged_ptr);
-        MPM_STATIC_ASSERT(sizeof(tag_type) <= 2);
+        DISALLOW_COPY_AND_ASSIGN(atomic_tagged_ptr);
+        static_assert(sizeof(tag_type) <= 2, "tag type must be <= 2 bytes");
 
         typedef uint64_t raw_value_type;
 
@@ -51,7 +51,7 @@ namespace mpm {
     {
         raw_value_type new_value(pack(new_ptr, new_tag));
         raw_value_type expected_value(pack(expected_ptr, expected_tag));
-        return MPM_CAS(&m_raw_value, expected_value, new_value);
+        return CAS(&m_raw_value, expected_value, new_value);
     }
 
 
@@ -68,7 +68,7 @@ namespace mpm {
     atomic_tagged_ptr<T, Tag>::set(ptr_type ptr, tag_type tag)
     {
         raw_value_type new_value(pack(ptr, tag));
-        MPM_EXCHG(&m_raw_value, new_value);
+        EXCHG(&m_raw_value, new_value);
     }
 
 

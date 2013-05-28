@@ -35,7 +35,7 @@ public:
     pointer pop();
 
 private:
-    MPM_DISALLOW_COPY_AND_ASSIGN(intrusive_lockfree_mpsc_queue);
+    DISALLOW_COPY_AND_ASSIGN(intrusive_lockfree_mpsc_queue);
 
     value_type m_stub;
     volatile_pointer m_head;
@@ -56,7 +56,7 @@ void
 intrusive_lockfree_mpsc_queue<T>::push(reference value)
 {
     mpm_intrusive_lockfree_mpsc_queue_set_next(value, static_cast<pointer>(0));
-    pointer prev(MPM_EXCHG(&m_head, &value));
+    pointer prev(EXCHG(&m_head, &value));
     mpm_intrusive_lockfree_mpsc_queue_set_next(*prev, &value);
 }
 

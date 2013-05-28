@@ -20,7 +20,7 @@ public:
     bool exchange(ptr_type my_ptr, ref_ptr_type out_val, unsigned int timeout);
 
 private:
-    MPM_DISALLOW_COPY_AND_ASSIGN(lockfree_exchanger);
+    DISALLOW_COPY_AND_ASSIGN(lockfree_exchanger);
     enum {
         EMPTY,      //Exchanger has no threads attemptying to exchange ptrs
 

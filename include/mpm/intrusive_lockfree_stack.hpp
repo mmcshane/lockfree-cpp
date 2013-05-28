@@ -82,9 +82,10 @@ public:
     bool empty() const;
 
 private:
-    MPM_DISALLOW_COPY_AND_ASSIGN(intrusive_lockfree_stack);
-    MPM_STATIC_ASSERT(0 == (elimination_opts::slots &
-                    (elimination_opts::slots - std::size_t(1u))));
+    DISALLOW_COPY_AND_ASSIGN(intrusive_lockfree_stack);
+    static_assert(0 == (elimination_opts::slots &
+                (elimination_opts::slots - std::size_t(1u))),
+            "Number of elimination slots must be a power of 2");
 
     enum pop_result { CAS_FAILED, EMPTY, SUCCESS };
 
